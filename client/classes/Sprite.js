@@ -10,16 +10,22 @@ class Sprite {
   }
 
   drawIndex(context, index, x, y) {
+    // Pre-calculate values for better performance
+    const sourceX = this.cellSize.x * index;
+    const destX = Math.round(x + this.offset.x); // Integer positions for crisp rendering
+    const destY = Math.round(y + this.offset.y);
+    
+    // Optimized drawImage call with integer coordinates
     context.drawImage(
       this.image,
-      this.cellSize.x * index,
+      sourceX,
       0,
       this.cellSize.x,
       this.cellSize.y,
-      x + this.offset.x,
-      y + this.offset.y,
+      destX,
+      destY,
       this.cellSize.x,
-      this.cellSize.y,
+      this.cellSize.y
     );
   }
 }

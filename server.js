@@ -8,7 +8,7 @@ const socketIO = require("socket.io");
 const Game = require('./server/classes/Game');
 
 // constants
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 const FRAME_TIME = Math.floor(1000 / 60);
 
 var app = express();
@@ -25,12 +25,25 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '/views/index.html'));
 });
 
-// GAME CLOCK
+// Server FPS monitoring
+let serverFrameCount = 0;
+let lastServerFPSCheck = Date.now();
+
+// GAME CLOCK - Optimized 60 FPS loop
 setInterval(function() {
-  console.log('butt'); // THis makes the game run properly for some reason
   if (game) {
     game.update();
     game.sendState();
+    
+    // Monitor server FPS
+    serverFrameCount++;
+    const now = Date.now();
+    if (now - lastServerFPSCheck >= 5000) { // Check every 5 seconds
+      const serverFPS = Math.round(serverFrameCount * 1000 / (now - lastServerFPSCheck));
+      console.log(`Server FPS: ${serverFPS} | Players: ${Object.keys(game.players).length}`);
+      serverFrameCount = 0;
+      lastServerFPSCheck = now;
+    }
   }
 }, FRAME_TIME);
 
